@@ -1,0 +1,9 @@
+# Pycharm, although recommended to merge in https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
+.idea/
+
+# MacOS
+.DS_Store
+
+.env
+scratch.py
+gs_credentials.json
