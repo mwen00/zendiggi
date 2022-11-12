@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "f47ce8f65fbd280b10d5a934307d17b9bf4e2c59814d0a6a4db00302f84275bf"
+            "sha256": "0dfb28886cd35a87230b526e2a93da4d77dc3488762f272903c2030fcd87b6b6"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -172,13 +172,21 @@
             "index": "pypi",
             "version": "==1.5.1"
         },
-        "praw": {
+        "posts": {
             "hashes": [
-                "sha256:0d8a75c8c9f78c0101f31653b68d23d0d9cee9a6ada7910f809610edcd905090",
-                "sha256:3eeebe093f2d905b6c99e18aa8c8f64071b2e7a05e60b618166ee53397cdae72"
+                "sha256:8c3d56a74734d5cb0d3bf1b22db8a4a4c60e26daef7f9263e84394227325183a",
+                "sha256:a36c26efb6d094a4dcb8161c20054ef6c8ea992281ef5e2b515ba16d8ead44d8"
             ],
             "index": "pypi",
-            "version": "==7.6.0"
+            "version": "==0.2.2"
+        },
+        "praw": {
+            "hashes": [
+                "sha256:07fc95ffc52187351ab77b81fa6910c66e8fa084faf4b060b90864ad186dfb9e",
+                "sha256:33ac091cd061d9bd607ae231d4ea40025060a4ecb5e11baa5ce9a25c6d2f5a6b"
+            ],
+            "index": "pypi",
+            "version": "==7.6.1"
         },
         "prawcore": {
             "hashes": [
