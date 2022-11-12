@@ -3,7 +3,7 @@ Query Google to get related Reddit posts
 (FYI Reddit's internal search is v terrible)
 TempDB: https://docs.google.com/spreadsheets/d/1-8i5Y7Tt6Vx1E9mzZ2hbIy8rI45Ng6DqTMQgPdg3tmw/edit#gid=0
 """
-
+from typing import List
 import urllib.request
 from bs4 import BeautifulSoup
 import re
@@ -11,17 +11,18 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
 
-
+# TODO: Add type checking
 # TODO: Abstract this some more
 class RedditPost:
     LEFT_URL_PATTERN = ".*comments/"
 
-    def __init__(self, title, _url, location):
+    def __init__(self, title: str, _url: str, location: str):
         self.location = location
         self.title = title
+        # post init method when using dataclass
         self.identifier = self._parse_url(_url)
 
-    def _parse_url(self, _url):
+    def _parse_url(self, _url: str) -> str:
         # TODO: There has to be a more concise way to pattern match
         p = re.compile(self.LEFT_URL_PATTERN)
         # Retrieve all text right of the LEFT_URL_PATTERN
@@ -30,10 +31,11 @@ class RedditPost:
         p = re.compile("/.*")
         return p.sub("", right)
 
-    def __eq__(self, other):
+    # TODO: other - how to type check?
+    def __eq__(self, other) -> bool:
         return self.identifier == other.identifier
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"Location: {self.location}, Post Title: {self.title}, Post Identifier: {self.identifier}"
 
 
@@ -59,7 +61,7 @@ def google_query(site, location, keywords=None):
 
 
 # PART 2: Parse Google HTML
-def parse_html(html, location):
+def parse_html(html, location) -> List[RedditPost]:
     # Construct the soup object to parse
     soup = BeautifulSoup(html, "html.parser")
 
@@ -79,8 +81,13 @@ def parse_html(html, location):
         if result_url := div.select("a"):
             url = result_url[0].get("href")
 
+        # Add a guard against non-comments
+        if "comment" not in url:
+            continue
+
         try:
             # TODO: Probably better to not create the RedditPost to then discard a dup
+            # Maybe a set is more performant?
             post = RedditPost(h3, url, location)
             if post not in results:
                 results.append(post)
@@ -90,7 +97,7 @@ def parse_html(html, location):
     return results
 
 
-# TODO: Use an actual database once the db structure is determined
+# TODO: Use an actual database once the db structure is determined, use PostgresSQL, let Alex know!
 # PART 3: Connect to Google Sheets
 def insert_posts(df):
     scope = ['https://www.googleapis.com/auth/spreadsheets',
@@ -113,7 +120,7 @@ def insert_posts(df):
 
 
 def main():
-    # TODO: Remove hardcoding for testing
+    # TODO: Remove hardcoding for testng
     # site = "Reddit.com"
     # location = "Los Angeles"
     # keywords = "recommendations"

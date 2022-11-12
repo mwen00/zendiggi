@@ -1,40 +1,67 @@
 import os
+
+import pandas as pd
 from dotenv import load_dotenv
 import praw
 from pprint import pprint
+from google_reddit_scrape import *
 
 
-# Create Reddit instance
-# Retrieve credentials
+# Retrieve Reddit Credentials
 load_dotenv()
 CLIENT_ID = os.getenv("CLIENT_ID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 USER_AGENT = os.getenv("USER_AGENT")
 
+# Create Reddit instance
 reddit = praw.Reddit(client_id=CLIENT_ID,
                      client_secret=CLIENT_SECRET,
                      user_agent=USER_AGENT)
 
-# Example: hot posts from r/all
-# for submission in reddit.subreddit("all").hot(limit=25):
-#     print(submission.title)
+# List of test comments
+submissions = ["be5rj", "vmch7l", "r9bqwt"]
+data = []
 
-# Example: Determine Available Attributes of a PRAW Object
-# submission = reddit.submission("39zje0")
-# print(submission.title)  # to make it non-lazy
-# pprint(vars(submission))
+# Iterate through each submission/post
+for i in submissions:
+    # Obtain the Reddit submission obj
+    submission = reddit.submission(i)
 
-# Working with Streams
-# for comment in reddit.subreddit("test").stream.comments():
-#     print(comment)
+    # limit=0 removes all MoreComments obj from the CommentForest
+    submission.comments.replace_more(limit=0)
+    # Iterate through the CommentForest, a list of top-level comments
+    for top_level_comment in submission.comments:
+        # BFS of replies for the top_level_comment
+        replies = ""
 
-# for submission in reddit.subreddit("all").stream.submissions():
-#     print(submission)
+        for comments in top_level_comment.replies.list():
+            replies += " " + comments.body
 
-url = "https://www.reddit.com/r/LosAngeles/comments/be5rj/visiting_la_for_8_days_i_have_tons_of_questions/"
-submission = reddit.submission(url=url)
-# Or can use: submission = reddit.submission("be5rj")
+        post_details = {
+            "identifier": i,
+            "subreddit": submission.subreddit_name_prefixed,
+            "title": submission.title,
+            "selftext": submission.selftext,
+            "top_level_comment": top_level_comment.body,
+            "replies": replies
+        }
 
-for top_level_comment in submission.comments:
-    print(top_level_comment.body)
+        data.append(post_details)
 
+df = pd.DataFrame(data, columns=['identifier', 'subreddit', 'title', 'selftext', 'top_level_comment', 'replies'])
+
+
+def insert_comments(df):
+    scope = ['https://www.googleapis.com/auth/spreadsheets',
+             "https://www.googleapis.com/auth/drive"]
+
+    credentials = ServiceAccountCredentials.from_json_keyfile_name("gs_credentials.json", scope)
+    client = gspread.authorize(credentials)
+
+    # This is sheet2
+    sheet = client.open("TempDatabase").get_worksheet(1)
+
+    sheet.update([df.columns.values.tolist()] + df.values.tolist())
+
+
+insert_comments(df)
