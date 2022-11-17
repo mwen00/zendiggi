@@ -3,16 +3,26 @@ Query Google to get related Reddit posts
 (FYI Reddit's internal search is v terrible)
 TempDB: https://docs.google.com/spreadsheets/d/1-8i5Y7Tt6Vx1E9mzZ2hbIy8rI45Ng6DqTMQgPdg3tmw/edit#gid=0
 """
+import os
+from dotenv import load_dotenv
+from datetime import date
 from typing import List
+from typing import TypeVar
+
+import firebase_admin
+from firebase_admin import db
+import requests.exceptions
+
 import urllib.request
 from bs4 import BeautifulSoup
 import re
-import gspread
-from oauth2client.service_account import ServiceAccountCredentials
-import pandas as pd
 
-# TODO: Add type checking
-# TODO: Abstract this some more
+
+load_dotenv()
+T = TypeVar('T')
+
+
+# TODO: Abstract this out some more
 class RedditPost:
     LEFT_URL_PATTERN = ".*comments/"
 
@@ -31,17 +41,28 @@ class RedditPost:
         p = re.compile("/.*")
         return p.sub("", right)
 
-    # TODO: other - how to type check?
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: T) -> bool:
         return self.identifier == other.identifier
 
     def __str__(self) -> str:
         return f"Location: {self.location}, Post Title: {self.title}, Post Identifier: {self.identifier}"
 
 
+# Initialize connection to Firebase Realtime db
+def initialize_db():
+    try:
+        cred = firebase_admin.credentials.Certificate("google_credentials.json")
+        firebase_admin.initialize_app(cred, {
+            "databaseURL": os.getenv("DATABASE_URL")
+        })
+    except requests.exceptions.HTTPError as e:
+        # TODO: Test this
+        print(e.args[0].response)
+
+
 # PART 1: Google Query
 # TODO: Allow for more results - e.g. can modify to page 2 with "&start=10"
-def google_query(site, location, keywords=None):
+def google_query(site: str, location: str, keywords: str = None) -> str:
     base_url = "https://www.google.com/search?q=site%3A"
     s = location + " " + keywords
     query = base_url + site + '+' + '+'.join(s.split())
@@ -61,7 +82,7 @@ def google_query(site, location, keywords=None):
 
 
 # PART 2: Parse Google HTML
-def parse_html(html, location) -> List[RedditPost]:
+def parse_html(html: str, location: str) -> List[RedditPost]:
     # Construct the soup object to parse
     soup = BeautifulSoup(html, "html.parser")
 
@@ -97,49 +118,50 @@ def parse_html(html, location) -> List[RedditPost]:
     return results
 
 
-# TODO: Use an actual database once the db structure is determined, use PostgresSQL, let Alex know!
-# PART 3: Connect to Google Sheets
-def insert_posts(df):
-    scope = ['https://www.googleapis.com/auth/spreadsheets',
-             "https://www.googleapis.com/auth/drive"]
+# PART 3: Insert Reddit posts into db
+def insert_reddit_posts(posts: List[RedditPost]):
+    location_ref = db.reference(u"locations")
+    location_ref.update({
+        posts[0].location: {
+            "update_date": date.today().isoformat(),
+            "posts": [post.identifier for post in posts]
+        }
+    })
 
-    credentials = ServiceAccountCredentials.from_json_keyfile_name("gs_credentials.json", scope)
-    client = gspread.authorize(credentials)
 
-    # Create new database
-    # sheet = client.create("TempDatabase")
+# Check if the location is in the db or over a year since last update
+def verify_loc_exists(location: str) -> bool:
+    return False
 
-    # Share sheet with my Gmail accounts
-    # sheet.share('melwen26@gmail.com', perm_type='user', role='writer')
 
-    # Open database
-    sheet = client.open("TempDatabase").sheet1
-
-    # Export df to a sheet
-    sheet.update([df.columns.values.tolist()] + df.values.tolist())
+# Retrieve posts if the location exists in the db and last update was within a year
+def get_posts(location: str) -> str:
+    print(f"Location {location} already exists.")
 
 
 def main():
     # TODO: Remove hardcoding for testng
-    # site = "Reddit.com"
-    # location = "Los Angeles"
-    # keywords = "recommendations"
+    site = "Reddit.com"
+    location = "Los Angeles"
+    keywords = "recommendations"
 
-    site = input("What site do you want to search? ")
-    # TODO: add check against valid locations? Auto-complete with Google Maps API?
-    location = input("Search location: ")
-    keywords = input("Additional search keywords/phrase: ")
+    # site = input("What site do you want to search? ")
+    # # TODO: add check against valid locations? Auto-complete with Google Maps API?
+    # location = input("Search location: ")
+    # keywords = input("Additional search keywords/phrase: ")
 
-    google_html = google_query(site, location, keywords)
-    query_results = parse_html(google_html, location)
+    # Initialize Firebase db
+    initialize_db()
 
-    # TODO: Remove debugging
-    # print(pd.DataFrame([vars(i) for i in query_results]))
-
-    insert_posts(pd.DataFrame([vars(i) for i in query_results]))
+    # Check if the location is already in the db
+    if verify_loc_exists(location):
+        get_posts(location)
+    else:
+        # Add new location and post to the db
+        google_html = google_query(site, location, keywords)
+        query_results = parse_html(google_html, location)
+        insert_reddit_posts(query_results)
 
 
 if __name__ == "__main__":
     main()
-
-

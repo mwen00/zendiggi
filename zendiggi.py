@@ -1,14 +1,10 @@
-import os
-
 import pandas as pd
-from dotenv import load_dotenv
 import praw
 from pprint import pprint
 from google_reddit_scrape import *
 
 
 # Retrieve Reddit Credentials
-load_dotenv()
 CLIENT_ID = os.getenv("CLIENT_ID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 USER_AGENT = os.getenv("USER_AGENT")
@@ -55,7 +51,7 @@ def insert_comments(df):
     scope = ['https://www.googleapis.com/auth/spreadsheets',
              "https://www.googleapis.com/auth/drive"]
 
-    credentials = ServiceAccountCredentials.from_json_keyfile_name("gs_credentials.json", scope)
+    credentials = ServiceAccountCredentials.from_json_keyfile_name("google_credentials.json", scope)
     client = gspread.authorize(credentials)
 
     # This is sheet2
