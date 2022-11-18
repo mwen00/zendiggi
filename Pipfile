@@ -11,6 +11,8 @@ oauth2client = "*"
 pandas = "*"
 python-dotenv = "*"
 posts = "*"
+firebase-admin = "*"
+google-cloud-firestore = "*"
 
 [dev-packages]
 

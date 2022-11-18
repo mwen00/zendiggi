@@ -3,7 +3,7 @@
 
 # Personal Files
 scratch.py
-gs_credentials.json
+google_credentials.json
 
 # MacOS
 .DS_Store
