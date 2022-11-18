@@ -12,11 +12,6 @@ reddit = praw.Reddit(client_id=CLIENT_ID,
                      client_secret=CLIENT_SECRET,
                      user_agent=USER_AGENT)
 
-# DB paths and document fields
-REDDIT_POSTS_COLLECTION = "reddit_posts"
-COMMENTS_COLLECTION = "comments"
-POSTS_FIELD = "posts"
-
 
 # TODO: Fix logic for when this occurs
 # Read Reddit post ids from db

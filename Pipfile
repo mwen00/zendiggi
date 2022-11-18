@@ -13,6 +13,7 @@ python-dotenv = "*"
 posts = "*"
 firebase-admin = "*"
 google-cloud-firestore = "*"
+spacy = "*"
 
 [dev-packages]
 
