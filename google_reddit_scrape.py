@@ -10,8 +10,7 @@ from typing import List
 from typing import TypeVar
 
 import firebase_admin
-from firebase_admin import db
-import requests.exceptions
+from firebase_admin import firestore
 
 import urllib.request
 from bs4 import BeautifulSoup
@@ -20,6 +19,11 @@ import re
 
 load_dotenv()
 T = TypeVar('T')
+
+# Initialize connection to Firestore db
+cred = firebase_admin.credentials.Certificate("google_credentials.json")
+app = firebase_admin.initialize_app(cred)
+db = firestore.client()
 
 
 # TODO: Abstract this out some more
@@ -46,18 +50,6 @@ class RedditPost:
 
     def __str__(self) -> str:
         return f"Location: {self.location}, Post Title: {self.title}, Post Identifier: {self.identifier}"
-
-
-# Initialize connection to Firebase Realtime db
-def initialize_db():
-    try:
-        cred = firebase_admin.credentials.Certificate("google_credentials.json")
-        firebase_admin.initialize_app(cred, {
-            "databaseURL": os.getenv("DATABASE_URL")
-        })
-    except requests.exceptions.HTTPError as e:
-        # TODO: Test this
-        print(e.args[0].response)
 
 
 # PART 1: Google Query
@@ -120,38 +112,40 @@ def parse_html(html: str, location: str) -> List[RedditPost]:
 
 # PART 3: Insert Reddit posts into db
 def insert_reddit_posts(posts: List[RedditPost]):
-    location_ref = db.reference(u"locations")
-    location_ref.update({
-        posts[0].location: {
-            "update_date": date.today().isoformat(),
-            "posts": [post.identifier for post in posts]
-        }
-    })
+    db.collection("locations").document(posts[0].location).set({
+        "update_date": date.today().isoformat(),
+        "posts": [post.identifier for post in posts]
+    }, merge=True)
 
 
 # Check if the location is in the db or over a year since last update
 def verify_loc_exists(location: str) -> bool:
-    return False
+    doc_ref = db.collection("locations").document(location)
+    doc = doc_ref.get()
+
+    return True if doc else False
 
 
 # Retrieve posts if the location exists in the db and last update was within a year
-def get_posts(location: str) -> str:
+def get_posts(location: str):
     print(f"Location {location} already exists.")
+    loc_ref = db.collection("locations")
+    docs = loc_ref.stream()
+    for doc in docs:
+        update_date = doc.get("posts")
+        print(update_date)
 
 
 def main():
     # TODO: Remove hardcoding for testng
     site = "Reddit.com"
-    location = "Los Angeles"
+    location = "Boulder"
     keywords = "recommendations"
 
     # site = input("What site do you want to search? ")
     # # TODO: add check against valid locations? Auto-complete with Google Maps API?
     # location = input("Search location: ")
     # keywords = input("Additional search keywords/phrase: ")
-
-    # Initialize Firebase db
-    initialize_db()
 
     # Check if the location is already in the db
     if verify_loc_exists(location):
