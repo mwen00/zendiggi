@@ -25,6 +25,11 @@ cred = firebase_admin.credentials.Certificate("google_credentials.json")
 app = firebase_admin.initialize_app(cred)
 db = firestore.client()
 
+# DB paths and document fields
+LOCATIONS_COLLECTION = "locations"
+POSTS_FIELD = "posts"
+UPDATE_DATE_FIELD = "update_date"
+
 
 # TODO: Abstract this out some more
 class RedditPost:
@@ -112,24 +117,24 @@ def parse_html(html: str, location: str) -> List[RedditPost]:
 
 # PART 3: Insert Reddit posts into db
 def insert_reddit_posts(posts: List[RedditPost]):
-    db.collection("locations").document(posts[0].location).set({
-        "update_date": date.today().isoformat(),
-        "posts": [post.identifier for post in posts]
+    db.collection(LOCATIONS_COLLECTION).document(posts[0].location).set({
+        UPDATE_DATE_FIELD: date.today().isoformat(),
+        POSTS_FIELD: [post.identifier for post in posts]
     }, merge=True)
 
 
 # Check if the location is in the db or over a year since last update
 def verify_loc_exists(location: str) -> bool:
-    doc_ref = db.collection("locations").document(location)
+    doc_ref = db.collection(LOCATIONS_COLLECTION).document(location)
     doc = doc_ref.get()
 
     return True if doc.exists else False
 
 
-# Retrieve posts if the location exists in the db and last update was within a year
+# Read posts if the location exists in the db and last update was within a year
 def get_posts(location: str):
-    data = db.collection("locations").document(location).get().to_dict()
-    last_update = date.fromisoformat(data["update_date"])
+    data = db.collection(LOCATIONS_COLLECTION).document(location).get().to_dict()
+    last_update = date.fromisoformat(data[UPDATE_DATE_FIELD])
 
     # TODO: Implement re-scrape if data is old and append to results, need some sort of global state for the user query
     if (date.today() - last_update).days > 10:
@@ -139,9 +144,9 @@ def get_posts(location: str):
 
 
 def main():
-    # TODO: Remove hardcoding for testng
+    # TODO: Remove hard-coding for testng
     site = "Reddit.com"
-    location = "Yakushima"
+    location = "Chicago"
     keywords = "recommendations"
 
     # site = input("What site do you want to search? ")
