@@ -27,6 +27,8 @@ db = firestore.client()
 
 # DB paths and document fields
 LOCATIONS_COLLECTION = "locations"
+REDDIT_POSTS_COLLECTION = "reddit_posts"
+COMMENTS_COLLECTION = "comments"
 POSTS_FIELD = "posts"
 UPDATE_DATE_FIELD = "update_date"
 
