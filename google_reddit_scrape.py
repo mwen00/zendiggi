@@ -123,23 +123,25 @@ def verify_loc_exists(location: str) -> bool:
     doc_ref = db.collection("locations").document(location)
     doc = doc_ref.get()
 
-    return True if doc else False
+    return True if doc.exists else False
 
 
 # Retrieve posts if the location exists in the db and last update was within a year
 def get_posts(location: str):
-    print(f"Location {location} already exists.")
-    loc_ref = db.collection("locations")
-    docs = loc_ref.stream()
-    for doc in docs:
-        update_date = doc.get("posts")
-        print(update_date)
+    data = db.collection("locations").document(location).get().to_dict()
+    last_update = date.fromisoformat(data["update_date"])
+
+    # TODO: Implement re-scrape if data is old and append to results, need some sort of global state for the user query
+    if (date.today() - last_update).days > 10:
+        pass
+
+    print(f"Data for location {location} already exists from {last_update}.")
 
 
 def main():
     # TODO: Remove hardcoding for testng
     site = "Reddit.com"
-    location = "Boulder"
+    location = "Yakushima"
     keywords = "recommendations"
 
     # site = input("What site do you want to search? ")
