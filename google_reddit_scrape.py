@@ -147,14 +147,14 @@ def get_posts(location: str):
 
 def main():
     # TODO: Remove hard-coding for testng
-    site = "Reddit.com"
-    location = "Chicago"
-    keywords = "recommendations"
+    # site = "Reddit.com"
+    # location = "Chicago"
+    # keywords = "recommendations"
 
-    # site = input("What site do you want to search? ")
-    # # TODO: add check against valid locations? Auto-complete with Google Maps API?
-    # location = input("Search location: ")
-    # keywords = input("Additional search keywords/phrase: ")
+    site = input("What site do you want to search? ")
+    # TODO: add check against valid locations? Auto-complete with Google Maps API?
+    location = input("Search location: ")
+    keywords = input("Additional search keywords/phrase: ")
 
     # Check if the location is already in the db
     if verify_loc_exists(location):

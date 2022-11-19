@@ -19,15 +19,14 @@ posts_query_ref = posts_ref.where("google_search_rank", "==", 0).get()
 text = ""
 
 for post in posts_query_ref:
-    print(post.id)
+    text += f"\n----------- NEW POST {post.id} -----------\n"
     comments_ref = db.collection(REDDIT_POSTS_COLLECTION).document(post.id).collection(COMMENTS_COLLECTION)
-    comments_query_ref = comments_ref.where("comment_rank", "==", 0).get()
+    comments_query_ref = comments_ref.get()
 
     for comment in comments_query_ref:
         data = comment.to_dict()
-        text += data["top_level_comment"] + "\n-----------" + data["replies"]
-
-    text += "\n----------- NEW POST -----------\n"
+        text += f"\n----------- TOP LEVEL COMMENT for POST {post.id} -----------\n"
+        text += data["top_level_comment"] + "\n----------- REPLIES -----------\n" + data["replies"]
 
 
 doc = nlp(text)
