@@ -100,11 +100,13 @@ def parse_google_html(location: str, html: str) -> List[GoogleResult]:
             logging.warn(f"Could not parse title and URL from {div}")
 
     # TODO: Move this...should I be opening two different sessions to write to two different tables?
-    insert_location(location)
-    insert_reddit_posts(results)
+    # insert_location(location)
+    # insert_reddit_posts(location, results)
+
+    logging.debug(results)
 
     # TO_REMOVE:
-    # write_log(results)
+    write_log(results)
 
 
 def insert_location(location: str) -> None:
@@ -122,8 +124,21 @@ def insert_location(location: str) -> None:
     crud.location.create(db, obj_in=location_in)
 
 
-def insert_reddit_posts(results: List[GoogleResult]) -> None:
-    ...
+def insert_reddit_posts(location: str, results: List[GoogleResult]) -> None:
+    db = SessionLocal()
+    
+    for idx, result in enumerate(results):
+        with open("log.txt", mode="a") as log:
+            log.write(f"index: {idx}, {str(result)}" + "\n")
+
+        post_in = schemas.RedditPostCreate(
+            id=result.identifier,
+            location=location, # How do I get the location.id as this value and define the foreign key properly?
+            rank=idx,
+            title=result.title
+        )
+
+        crud.redditpost.create(db, obj_in=post_in)
 
 
 # TO_REMOVE:
