@@ -7,4 +7,4 @@ class CRUDRedditPost(CRUDBase[RedditPost, RedditPostCreate, RedditPostUpdate]):
     ...
 
 
-reddit_post = CRUDRedditPost(RedditPost)
+redditpost = CRUDRedditPost(RedditPost)

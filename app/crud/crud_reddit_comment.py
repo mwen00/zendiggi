@@ -7,4 +7,4 @@ class CRUDRedditComment(CRUDBase[RedditComment, RedditCommentCreate, RedditComme
     ...
 
 
-reddit_comment = CRUDRedditComment(RedditComment)
+redditcomment = CRUDRedditComment(RedditComment)

@@ -4,7 +4,6 @@ from bs4 import BeautifulSoup
 import urllib.request
 import re
 
-from sqlalchemy.orm import Session
 from app.db.session import SessionLocal
 from app import crud, schemas
 
@@ -100,10 +99,8 @@ def parse_google_html(location: str, html: str) -> List[GoogleResult]:
             logging.warn(f"Could not parse title and URL from {div}")
 
     # TODO: Move this...should I be opening two different sessions to write to two different tables?
-    # insert_location(location)
-    # insert_reddit_posts(location, results)
-
-    logging.debug(results)
+    insert_location(location)
+    insert_reddit_posts(location, results)
 
     # TO_REMOVE:
     write_log(results)

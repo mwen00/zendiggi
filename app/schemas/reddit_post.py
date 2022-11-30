@@ -2,17 +2,17 @@ from pydantic import BaseModel
 
 
 class RedditPostBase(BaseModel):
+    id: str
     location: str
     rank: int
     title: str
-    op_text: str
 
 
 class RedditPostCreate(RedditPostBase):
+    id: str
     location: str
     rank: int
     title: str
-    op_text: str
 
 
 class RedditPostUpdate(RedditPostBase):
