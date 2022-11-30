@@ -36,8 +36,7 @@ def process_location(background_tasks: BackgroundTasks, location: str = Form()) 
     """
     Acknowledges location input client and starts scraping process
     """
-    # background_tasks.add_task(query_google, location)
-    background_tasks.add_task(insert_location, location)
+    background_tasks.add_task(query_google, location)
 
     return {"message": f"Scraping for {location} has been submitted successfully."}
 
