@@ -125,9 +125,6 @@ def insert_reddit_posts(location: str, results: List[GoogleResult]) -> None:
     db = SessionLocal()
     
     for idx, result in enumerate(results):
-        with open("log.txt", mode="a") as log:
-            log.write(f"index: {idx}, {str(result)}" + "\n")
-
         post_in = schemas.RedditPostCreate(
             id=result.identifier,
             location=location, # How do I get the location.id as this value and define the foreign key properly?
