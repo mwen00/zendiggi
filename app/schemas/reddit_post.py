@@ -16,7 +16,4 @@ class RedditPostCreate(RedditPostBase):
 
 
 class RedditPostUpdate(RedditPostBase):
-    location: str
-    rank: int
-    title: str
     op_text: str

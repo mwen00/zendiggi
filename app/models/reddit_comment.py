@@ -8,4 +8,4 @@ class RedditComment(Base):
     post_id = Column(String(256), ForeignKey("redditpost.id"))
     rank = Column(Integer, nullable=False)
     top_comment = Column(String(1000), nullable=False)
-    comment_tree = Column(String(1000), nullable=True)
+    replies = Column(String(1000), nullable=True)

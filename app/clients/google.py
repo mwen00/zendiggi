@@ -11,6 +11,8 @@ from datetime import date
 from typing import List
 from typing import TypeVar
 
+from app.clients.reddit import insert_reddit_comments
+
 # TO_REMOVE: 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -99,8 +101,10 @@ def parse_google_html(location: str, html: str) -> List[GoogleResult]:
             logging.warn(f"Could not parse title and URL from {div}")
 
     # TODO: Move this...should I be opening two different sessions to write to two different tables?
+    # Feels a little overkill to use GoogleResult objects
     insert_location(location)
     insert_reddit_posts(location, results)
+    insert_reddit_comments(results)
 
     # TO_REMOVE:
     write_log(results)

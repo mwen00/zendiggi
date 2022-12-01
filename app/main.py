@@ -1,6 +1,9 @@
 from fastapi import FastAPI, APIRouter, status, Request, Depends, Form, BackgroundTasks
 from fastapi.templating import Jinja2Templates
 
+import os
+from dotenv import load_dotenv
+
 from pathlib import Path
 from sqlalchemy.orm import Session
 
@@ -13,6 +16,8 @@ from app import crud
 BASE_PATH = Path(__file__).resolve().parent
 TEMPLATES = Jinja2Templates(directory=str(BASE_PATH / "templates"))
 
+# load env
+load_dotenv()
 
 # Not sure I need to specify this param `openapi_url`
 app = FastAPI(title="Zendiggi API", openapi_url="/openapi.json")

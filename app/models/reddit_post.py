@@ -11,4 +11,3 @@ class RedditPost(Base):
     title = Column(String(256), nullable=True)
     op_text = Column(String(1000), nullable=True)
     comments = relationship("RedditComment", backref="redditpost")
-
