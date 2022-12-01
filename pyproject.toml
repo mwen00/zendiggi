@@ -17,6 +17,7 @@ bs4 = "^0.0.1"
 sqlalchemy = "^1.4.44"
 alembic = "^1.8.1"
 tenacity = "^8.1.0"
+praw = "^7.6.1"
 
 
 [tool.poetry.group.dev.dependencies]
