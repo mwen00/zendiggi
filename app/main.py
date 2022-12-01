@@ -1,7 +1,6 @@
 from fastapi import FastAPI, APIRouter, status, Request, Depends, Form, BackgroundTasks
 from fastapi.templating import Jinja2Templates
 
-import os
 from dotenv import load_dotenv
 
 from pathlib import Path
@@ -30,9 +29,10 @@ def root(request: Request) -> dict:
     """
     Root GET
     """
+
     return TEMPLATES.TemplateResponse(
         "index.html",
-        {"request": request, "message": "Hello, World!"}
+        { "request": request, "message": "زندگی" }
     )
 
 
