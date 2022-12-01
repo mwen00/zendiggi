@@ -5,8 +5,10 @@ from dotenv import load_dotenv
 
 from pathlib import Path
 from sqlalchemy.orm import Session
+from typing import Any
 
 from app.clients.google import query_google, insert_location
+from app.schemas.location import LocationBase
 from app import deps
 from app import crud
 
@@ -34,6 +36,16 @@ def root(request: Request) -> dict:
         "index.html",
         { "request": request, "message": "زندگی" }
     )
+
+
+@router.get("/location/{location}", status_code=status.HTTP_202_ACCEPTED, response_model=LocationBase)
+def get_location(
+    *,
+    location: str,
+    db: Session = Depends(deps.get_db),
+) -> Any:
+    ...
+
 
 
 @router.post("/process-location/", status_code=status.HTTP_202_ACCEPTED)
