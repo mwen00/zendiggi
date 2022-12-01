@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String
-from sqlalchemy.orm import relationship
+# from sqlalchemy.orm import relationship
 
 from app.db.base_class import Base
 
@@ -10,4 +10,4 @@ class RedditPost(Base):
     rank = Column(Integer, nullable=False)
     title = Column(String(256), nullable=True)
     op_text = Column(String(1000), nullable=True)
-    comments = relationship("RedditComment", backref="redditpost")
+    # comments = relationship("RedditComment", backref="redditpost")

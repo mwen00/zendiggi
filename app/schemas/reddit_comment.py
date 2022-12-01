@@ -8,8 +8,8 @@ class RedditCommentBase(BaseModel):
 
 
 class RedditCommentCreate(RedditCommentBase):
-    rank: int
     post_id: str
+    rank: int
     top_comment: str
     replies: str
 
